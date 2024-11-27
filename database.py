@@ -4,23 +4,15 @@ import sqlite3
 conn = sqlite3.connect("salons.db")
 cursor = conn.cursor()
 
-# Таблица товаров
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS products (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    price REAL NOT NULL,
-    stock INTEGER NOT NULL
-)
-''')
-
 # Таблица клиентов
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS clients (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
     phone TEXT UNIQUE NOT NULL,
     email TEXT UNIQUE,
+    birth_date DATE,
     address TEXT
 )
 ''')
@@ -41,29 +33,18 @@ CREATE TABLE IF NOT EXISTS sales (
 )
 ''')
 
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS clients (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    first_name TEXT NOT NULL,
-    last_name TEXT NOT NULL,
-    phone TEXT UNIQUE NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    birth_date DATE,
-    address TEXT
-);
-''')
-
+# Таблица остатков
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS stock (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     category TEXT NOT NULL CHECK (category IN ('Устройство', 'Аксессуар', 'SIM-карта')),
+    price INTEGER NOT NULL,
     quantity INTEGER NOT NULL DEFAULT 0,
     branch TEXT NOT NULL,
     min_quantity INTEGER DEFAULT 10
 );
 ''')
-
 
 conn.commit()
 conn.close()
