@@ -131,14 +131,14 @@ class StockTab(tk.Frame):
         quantity_entry = tk.Entry(edit_window)
         quantity_entry.grid(row=0, column=1, padx=10, pady=10)
 
-        tk.Button(edit_window, text="Сохранить", command=lambda: self.save_stock(edit_window, item_id, quantity_entry.get(), price_entry.get())).grid(row=2, column=0, columnspan=2, pady=10)
+        tk.Button(edit_window, text="Сохранить", command=lambda: self.save_stock(edit_window, item_id, quantity_entry.get(),)).grid(row=2, column=0, columnspan=2, pady=10)
 
     def save_stock(self, window, item_id, quantity):
         """Сохранение нового остатка в базе данных."""
         try:
             quantity = int(quantity)
             cursor = self.db_connection.cursor()
-            cursor.execute("UPDATE stock SET quantity = ?, WHERE id = ?", (quantity, item_id))
+            cursor.execute("UPDATE stock SET quantity = ? WHERE id = ?", (quantity, item_id))
             self.db_connection.commit()
             window.destroy()
             self.load_stock()
