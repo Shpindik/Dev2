@@ -126,9 +126,9 @@ class ClientsTab(tk.Frame):
 
         cursor = self.db_connection.cursor()
         cursor.execute("""
-            SELECT sales.sale_date, products.name, sales.quantity, sales.unit_price, sales.total_price
+            SELECT sales.sale_date, stock.name, sales.quantity, sales.unit_price, sales.total_price
             FROM sales
-            JOIN products ON sales.product_id = products.id
+            JOIN stock ON sales.product_id = stock.id
             WHERE sales.client_id = ?
         """, (client_id,))
         

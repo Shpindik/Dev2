@@ -4,6 +4,7 @@ from tkinter import messagebox, ttk
 from openpyxl import Workbook
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from datetime import datetime, timedelta
 
 
 class ReportTab(ttk.Frame):
@@ -41,7 +42,7 @@ class ReportTab(ttk.Frame):
         query = '''
             SELECT p.name, s.quantity, s.unit_price, s.discount, s.total_price, s.sale_date
             FROM sales s
-            JOIN products p ON s.product_id = p.id
+            JOIN stock p ON s.product_id = p.id
             WHERE s.sale_date >= ?
             ORDER BY s.sale_date DESC
         '''
@@ -63,7 +64,7 @@ class ReportTab(ttk.Frame):
         query = '''
             SELECT p.name, SUM(s.quantity) AS total_sales
             FROM sales s
-            JOIN products p ON s.product_id = p.id
+            JOIN stock p ON s.product_id = p.id
             GROUP BY p.name
             ORDER BY total_sales DESC
         '''
@@ -87,7 +88,7 @@ class ReportTab(ttk.Frame):
         query = '''
             SELECT p.name, s.quantity, s.unit_price, s.discount, s.total_price, s.sale_date
             FROM sales s
-            JOIN products p ON s.product_id = p.id
+            JOIN stock p ON s.product_id = p.id
             ORDER BY s.sale_date DESC
         '''
         self.cursor.execute(query)
@@ -121,7 +122,7 @@ class ReportTab(ttk.Frame):
         query = '''
             SELECT p.name, s.quantity, s.unit_price, s.discount, s.total_price, s.sale_date
             FROM sales s
-            JOIN products p ON s.product_id = p.id
+            JOIN stock p ON s.product_id = p.id
             ORDER BY s.sale_date DESC
         '''
         self.cursor.execute(query)

@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import sqlite3
 
+
 class SalesTab(tk.Frame):
     def __init__(self, parent, db_connection, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
@@ -23,6 +24,7 @@ class SalesTab(tk.Frame):
         
         self.quantity_entry = tk.Entry(self)
         self.quantity_entry.grid(row=1, column=1, padx=10, pady=10)
+        self.quantity_entry.bind("<KeyRelease>", self.calculate_total_price)  # Добавляем обработчик события для изменения количества
         
         # Цена за единицу
         self.unit_price_label = tk.Label(self, text="Цена за единицу:")
@@ -32,11 +34,12 @@ class SalesTab(tk.Frame):
         self.unit_price_entry.grid(row=2, column=1, padx=10, pady=10)
         
         # Скидка
-        self.discount_label = tk.Label(self, text="Скидка (процент или сумма):")
+        self.discount_label = tk.Label(self, text="Скидка (Сумма):")
         self.discount_label.grid(row=3, column=0, padx=10, pady=10)
         
         self.discount_entry = tk.Entry(self)
         self.discount_entry.grid(row=3, column=1, padx=10, pady=10)
+        self.discount_entry.bind("<KeyRelease>", self.calculate_total_price)  # Обновление при изменении скидки
         
         # Итоговая стоимость
         self.total_price_label = tk.Label(self, text="Итоговая стоимость:")
@@ -84,16 +87,31 @@ class SalesTab(tk.Frame):
         self.client_combobox['values'] = client_names
         self.clients_data = {f"{client[1]} {client[2]}": client[0] for client in clients}
 
-    def calculate_total_price(self):
+    def load_stock(self):
+        """Загружаем данные о товарах со склада и обновляем таблицу."""
+        # Очищаем таблицу
+        for row in self.stock_table.get_children():
+            self.stock_table.delete(row)
+
+        # Загружаем обновленные данные из базы данных
+        cursor = self.db_connection.cursor()
+        cursor.execute("SELECT name, quantity, price FROM stock")
+        stock = cursor.fetchall()
+
+        # Заполняем таблицу новыми данными
+        for item in stock:
+            self.stock_table.insert("", tk.END, values=item)
+
+    def calculate_total_price(self, event=None):
         """Расчет итоговой стоимости с учетом скидки."""
         try:
-            quantity = int(self.quantity_entry.get())
-            unit_price = float(self.unit_price_entry.get())
+            quantity = int(self.quantity_entry.get()) if self.quantity_entry.get() else 0
+            unit_price = float(self.unit_price_entry.get()) if self.unit_price_entry.get() else 0
             discount = float(self.discount_entry.get()) if self.discount_entry.get() else 0
-            total_price = quantity * unit_price - discount
+            total_price = (quantity * unit_price) - discount
             self.total_price_entry.config(state="normal")
             self.total_price_entry.delete(0, tk.END)
-            self.total_price_entry.insert(0, total_price)
+            self.total_price_entry.insert(0, f"{total_price:.2f}")
             self.total_price_entry.config(state="readonly")
         except ValueError:
             self.total_price_entry.config(state="normal")
