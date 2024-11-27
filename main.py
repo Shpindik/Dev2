@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-from tkinter import scrolledtext
 import sqlite3
 import os
 
@@ -47,24 +46,40 @@ class MainApp(tk.Tk):
 
     def create_tabs(self):
         """Создание вкладок для навигации."""
-        notebook = ttk.Notebook(self)
-        notebook.pack(fill="both", expand=True)
+        self.notebook = ttk.Notebook(self)
+        self.notebook.pack(fill="both", expand=True)
 
         # Вкладка Учет продаж
-        sales_tab = SalesTab(notebook, self.db_connection)
-        notebook.add(sales_tab, text="Учет продаж")
+        self.sales_tab = SalesTab(self.notebook, self.db_connection)
+        self.notebook.add(self.sales_tab, text="Учет продаж")
 
-        # Вкладка Клиенты (будем добавлять позже)
-        clients_tab = ClientsTab(notebook, self.db_connection)
-        notebook.add(clients_tab, text="Клиенты")
+        # Вкладка Клиенты
+        self.clients_tab = ClientsTab(self.notebook, self.db_connection)
+        self.notebook.add(self.clients_tab, text="Клиенты")
 
-        # Вкладка Склад (будем добавлять позже)
-        stock_tab = StockTab(notebook, self.db_connection)
-        notebook.add(stock_tab, text="Склад")
+        # Вкладка Склад
+        self.stock_tab = StockTab(self.notebook, self.db_connection)
+        self.notebook.add(self.stock_tab, text="Склад")
 
-        # Вкладка Отчеты (будем добавлять позже)
-        reports_tab = ReportTab(notebook, self.db_connection)
-        notebook.add(reports_tab, text="Отчеты")
+        # Вкладка Отчеты
+        self.reports_tab = ReportTab(self.notebook, self.db_connection)
+        self.notebook.add(self.reports_tab, text="Отчеты")
+
+        # Привязка события смены вкладки
+        self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_change)
+
+    def on_tab_change(self, event):
+        """Обработчик смены вкладки."""
+        selected_tab = event.widget.tab(event.widget.index("current"))["text"]
+
+        if selected_tab == "Учет продаж":
+            self.sales_tab.refresh_tab()
+        elif selected_tab == "Клиенты":
+            self.clients_tab.refresh_tab()
+        elif selected_tab == "Склад":
+            self.stock_tab.refresh_tab()
+        elif selected_tab == "Отчеты":
+            self.reports_tab.refresh_tab()
 
     def create_about_button(self):
         """Создание кнопки 'О приложении' внизу."""
@@ -92,7 +107,7 @@ class MainApp(tk.Tk):
             about_window.geometry("400x300")
 
             # Используем scrolledtext для отображения большого текста
-            text_area = scrolledtext.ScrolledText(about_window, wrap=tk.WORD, width=45, height=10)
+            text_area = tk.Text(about_window, wrap=tk.WORD, width=45, height=10)
             text_area.pack(padx=10, pady=10)
             text_area.insert(tk.END, about_content)
             text_area.config(state=tk.DISABLED)  # Делаем текст только для чтения

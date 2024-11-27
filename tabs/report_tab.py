@@ -152,3 +152,6 @@ class ReportTab(ttk.Frame):
 
         c.save()
         messagebox.showinfo("Экспорт", f"Отчет успешно сохранен: {file_path}")
+    
+    def refresh_tab(self):
+        self.generate_sales_report()

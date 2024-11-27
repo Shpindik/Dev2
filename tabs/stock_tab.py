@@ -138,7 +138,12 @@ class StockTab(tk.Frame):
         try:
             quantity = int(quantity)
             cursor = self.db_connection.cursor()
-            cursor.execute("UPDATE stock SET quantity = ? WHERE id = ?", (quantity, item_id))
+            if quantity == 0:
+                cursor.execute("DELETE FROM stock WHERE id = ?", (item_id,))
+            else:
+                # Обновление количества товара
+                cursor.execute("UPDATE stock SET quantity = ? WHERE id = ?", (quantity, item_id))
+
             self.db_connection.commit()
             window.destroy()
             self.load_stock()
@@ -225,3 +230,6 @@ class StockTab(tk.Frame):
         cursor.execute("SELECT DISTINCT name FROM stock")
         names = cursor.fetchall()
         return [name[0] for name in names]
+    
+    def refresh_tab(self):
+        self.load_stock()

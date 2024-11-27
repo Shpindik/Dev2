@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS sales (
     unit_price REAL NOT NULL,
     discount REAL DEFAULT 0,
     total_price REAL NOT NULL,
+    branch TEXT NOT NULL,
     sale_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (product_id) REFERENCES products (id),
     FOREIGN KEY (client_id) REFERENCES clients (id)

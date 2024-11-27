@@ -119,10 +119,14 @@ class ClientsTab(tk.Frame):
     def show_client_history(self):
         """Показываем историю покупок клиента."""
         # Получаем ID клиента
-        client_id = simpledialog.askinteger("Выберите клиента", "Введите ID клиента:")
+        selected_item = self.client_table.selection()
 
-        if not client_id:
+        if not selected_item:
+            messagebox.showwarning("Ошибка", "Пожалуйста, выберите клиента из таблицы.")
             return
+
+        # Получаем ID клиента из выбранной строки
+        client_id = self.client_table.item(selected_item)["values"][0]
 
         cursor = self.db_connection.cursor()
         cursor.execute("""
@@ -153,6 +157,10 @@ class ClientsTab(tk.Frame):
 
         for sale in sales:
             history_table.insert("", tk.END, values=sale)
+    
+    def refresh_tab(self):
+        self.load_clients()
+
 
 if __name__ == "__main__":
     root = tk.Tk()
