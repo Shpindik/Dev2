@@ -26,7 +26,7 @@ class ReportTab(ttk.Frame):
         ttk.Button(self, text="Экспортировать в Excel", command=self.export_to_excel).pack(pady=5)
         ttk.Button(self, text="Экспортировать в PDF", command=self.export_to_pdf).pack(pady=5)
 
-    def generate_sales_report(self, period):
+    def generate_sales_report(self, period="day"):
         """Генерация отчета по продажам за указанный период."""
         # Определение диапазона дат
         if period == "day":

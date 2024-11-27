@@ -1,4 +1,6 @@
 import sqlite3
+from faker import Faker
+import random
 
 # Создание базы данных
 conn = sqlite3.connect("salons.db")
@@ -48,4 +50,88 @@ CREATE TABLE IF NOT EXISTS stock (
 ''')
 
 conn.commit()
+conn.close()
+
+# Инициализация Faker
+faker = Faker("ru_RU")
+
+# Подключение к базе данных
+conn = sqlite3.connect("salons.db")
+cursor = conn.cursor()
+
+# Генерация клиентов
+def populate_clients():
+    """Создает от 5 до 10 случайных клиентов с проверкой уникальности."""
+    num_clients = random.randint(5, 10)
+    clients = []
+    for _ in range(num_clients):
+        gender = random.choice(['male', 'female'])
+        
+        if gender == 'male':
+            first_name = faker.first_name_male()
+            last_name = faker.last_name_male()
+        else:
+            first_name = faker.first_name_female()
+            last_name = faker.last_name_female()
+        
+        # Проверка уникальности телефона и email
+        while True:
+            phone = faker.phone_number()
+            email = faker.unique.email()
+            cursor.execute("SELECT * FROM clients WHERE phone = ? OR email = ?", (phone, email))
+            if not cursor.fetchone():  # Если не найдено
+                break
+        
+        birth_date = faker.date_of_birth(minimum_age=18, maximum_age=70).strftime('%Y-%m-%d')
+        address = faker.address()
+        clients.append((first_name, last_name, phone, email, birth_date, address))
+    
+    cursor.executemany('''
+        INSERT INTO clients (first_name, last_name, phone, email, birth_date, address)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', clients)
+
+# Генерация склада
+def populate_stock():
+    """Создает осмысленные позиции для разных категорий на складе."""
+    accessories = ["AirPods", "AirPods Pro", "Galaxy Buds", "JBL Clip", "Sony WH-1000XM5"]
+    sim_cards = ["Сим-карта МТС", "Сим-карта Билайн", "Сим-карта Йота", "Сим-карта Tele2", "Сим-карта Мегафон"]
+    devices = ["iPhone 15", "Google Pixel 8", "Samsung Galaxy S23", "OnePlus 12", "Xiaomi 13"]
+    categories = {
+        'Аксессуар': accessories,
+        'SIM-карта': sim_cards,
+        'Устройство': devices
+    }
+    branches = ['Москва', 'Санкт-Петербург', 'Новосибирск']
+    num_products = random.randint(10, 20)
+    stock = []
+    
+    for _ in range(num_products):
+        category = random.choice(list(categories.keys()))
+        name = random.choice(categories[category])
+        price = random.randint(500, 50000)
+        quantity = random.randint(1, 100)
+        branch = random.choice(branches)
+        min_quantity = random.randint(5, 15)
+        stock.append((name, category, price, quantity, branch, min_quantity))
+    
+    cursor.executemany('''
+        INSERT INTO stock (name, category, price, quantity, branch, min_quantity)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', stock)
+
+# Заполнение базы данных
+def populate_database():
+    try:
+        populate_clients()
+        populate_stock()
+        conn.commit()
+        print("База данных успешно заполнена.")
+    except sqlite3.IntegrityError as e:
+        print("Ошибка уникальности:", e)
+
+
+populate_database()
+
+# Закрытие соединения
 conn.close()

@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import messagebox
 import sqlite3
 import os
+import subprocess
 
 from tabs.sales_tab import SalesTab
 from tabs.clients_tab import ClientsTab
@@ -17,6 +18,9 @@ class MainApp(tk.Tk):
         self.title("Информационная система для сети салонов связи")
         self.geometry("1200x800")
 
+        # Запуск database.py для генерации базы данных
+        self.run_database_script()
+
         # Соединение с базой данных
         self.db_connection = sqlite3.connect("salons.db")
         
@@ -28,6 +32,17 @@ class MainApp(tk.Tk):
 
         # Кнопка "О приложении" внизу
         self.create_about_button()
+
+        # Переопределение метода закрытия приложения
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
+
+    def run_database_script(self):
+        """Запуск database.py для создания базы данных."""
+        try:
+            subprocess.run(["python", "database.py"], check=True)
+        except subprocess.CalledProcessError as e:
+            messagebox.showerror("Ошибка", f"Ошибка при создании базы данных: {e}")
+            self.destroy()
 
     def create_menu(self):
         """Создание главного меню."""
@@ -92,27 +107,35 @@ class MainApp(tk.Tk):
 
     def show_about_window(self):
         """Открытие окна с информацией из about.txt."""
-        # Путь к файлу about.txt
         file_path = os.path.join(os.path.dirname(__file__), "about.txt")
 
-        # Проверяем, существует ли файл
         if os.path.exists(file_path):
-            # Читаем содержимое файла
             with open(file_path, "r", encoding="utf-8") as file:
                 about_content = file.read()
 
-            # Создаем новое окно для отображения информации
             about_window = tk.Toplevel(self)
             about_window.title("О приложении")
             about_window.geometry("400x300")
 
-            # Используем scrolledtext для отображения большого текста
             text_area = tk.Text(about_window, wrap=tk.WORD, width=45, height=10)
             text_area.pack(padx=10, pady=10)
             text_area.insert(tk.END, about_content)
-            text_area.config(state=tk.DISABLED)  # Делаем текст только для чтения
+            text_area.config(state=tk.DISABLED)
         else:
             messagebox.showerror("Ошибка", "Файл about.txt не найден!")
+
+    def on_close(self):
+        """Действия при закрытии приложения."""
+        if messagebox.askokcancel("Выход", "Вы действительно хотите выйти?"):
+            self.cleanup_database()
+            self.destroy()
+
+    def cleanup_database(self):
+        """Удаление базы данных при выходе."""
+        self.db_connection.close()
+        if os.path.exists("salons.db"):
+            os.remove("salons.db")
+
 
 if __name__ == "__main__":
     app = MainApp()

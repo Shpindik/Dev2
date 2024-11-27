@@ -27,9 +27,10 @@ class ClientsTab(tk.Frame):
 
     def create_client_table(self):
         """Создаем таблицу для отображения клиентов."""
-        self.client_table = ttk.Treeview(self, columns=("ID", "Имя", "Телефон", "Email", "Дата рождения", "Адрес"), show="headings")
+        self.client_table = ttk.Treeview(self, columns=("ID", "Имя", "Фамилия", "Телефон", "Email", "Дата рождения", "Адрес"), show="headings")
         self.client_table.heading("ID", text="ID")
         self.client_table.heading("Имя", text="Имя")
+        self.client_table.heading("Фамилия", text="Фамилия")
         self.client_table.heading("Телефон", text="Телефон")
         self.client_table.heading("Email", text="Email")
         self.client_table.heading("Дата рождения", text="Дата рождения")
