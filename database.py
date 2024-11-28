@@ -94,7 +94,7 @@ def populate_clients():
 
 
 def populate_stock():
-    """Создает осмысленные позиции для разных категорий на складе."""
+    """Создает позиции для разных категорий на складе."""
     accessories = [
         "AirPods",
         "AirPods Pro",
