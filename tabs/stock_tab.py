@@ -222,8 +222,13 @@ class StockTab(tk.Frame):
 
         tk.Label(add_window, text="Филиал:").grid(
             row=3, column=0, padx=10, pady=10)
-        branch_entry = tk.Entry(add_window)
-        branch_entry.grid(row=3, column=1, padx=10, pady=10)
+        branch_combo = ttk.Combobox(
+            add_window,
+            values = ["Москва", "Санкт-Петербург", "Новосибирск"],
+            state="readonly"
+        )
+        branch_combo.set("Филиал")
+        branch_combo.grid(row=3, column=1, padx=10, pady=10)
 
         tk.Label(add_window, text="Цена:").grid(
             row=4, column=0, padx=10, pady=10)
@@ -238,7 +243,7 @@ class StockTab(tk.Frame):
                 name_entry.get(),
                 category_combo.get(),
                 quantity_entry.get(),
-                branch_entry.get(),
+                branch_combo.get(),
                 price_entry.get()
             )
         ).grid(row=5, column=0, columnspan=2, pady=10)
